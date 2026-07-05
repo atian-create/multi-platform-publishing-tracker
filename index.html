@@ -1,0 +1,1143 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Multi-platform Publishing Tracker</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --paper: #ffffff;
+      --paper-soft: #f8fafc;
+      --line: #d8e0ec;
+      --ink: #1f2937;
+      --muted: #667085;
+      --shadow: 0 18px 42px rgba(31, 41, 55, 0.08);
+      color-scheme: light;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    button,
+    input,
+    textarea,
+    select {
+      font: inherit;
+    }
+
+    button {
+      height: 34px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0 13px;
+      background: #fff;
+      color: var(--ink);
+      font-weight: 760;
+      cursor: pointer;
+    }
+
+    button:hover { border-color: #b8c4d6; }
+
+    .primary {
+      color: #fff;
+      background: #1f2937;
+      border-color: #1f2937;
+    }
+
+    .accent {
+      color: #fff;
+      background: #0f766e;
+      border-color: #0f766e;
+    }
+
+    .danger {
+      color: #b42318;
+      background: #fff;
+      border-color: #fecaca;
+    }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(14px);
+    }
+
+    .topbar-inner {
+      display: grid;
+      grid-template-columns: minmax(280px, 1fr) auto;
+      gap: 16px;
+      align-items: start;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 24px;
+      line-height: 1.15;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 650;
+    }
+
+    .actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .search {
+      width: min(300px, 32vw);
+      height: 34px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0 12px;
+      outline: none;
+      font-weight: 650;
+    }
+
+    .table-shell {
+      margin: 16px 18px 22px;
+      overflow: auto;
+      max-height: calc(100vh - 120px);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--paper);
+      box-shadow: var(--shadow);
+    }
+
+    .toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 25;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      min-height: 48px;
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--line);
+      background: #f8fafc;
+    }
+
+    .toolbar-note {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 760;
+    }
+
+    table {
+      width: 100%;
+      min-width: 1060px;
+      border-spacing: 0;
+      border-collapse: separate;
+      table-layout: fixed;
+    }
+
+    th,
+    td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      vertical-align: middle;
+    }
+
+    th:last-child,
+    td:last-child { border-right: 0; }
+
+    thead th {
+      position: sticky;
+      z-index: 12;
+      top: 48px;
+      height: 42px;
+      background: #f7f8fa;
+      color: #344054;
+      font-size: 12px;
+      font-weight: 780;
+      text-align: center;
+    }
+
+    thead tr:nth-child(2) th {
+      top: 90px;
+      height: 40px;
+      background: #fff;
+    }
+
+    .platform-head {
+      color: var(--platform-color);
+      background: linear-gradient(180deg, #fff 0%, var(--platform-bg) 100%);
+      border-top: 3px solid var(--platform-color);
+      border-bottom-color: color-mix(in srgb, var(--platform-color) 28%, var(--line));
+    }
+
+    .platform-label {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      min-width: 0;
+    }
+
+    .logo {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      display: inline-grid;
+      place-items: center;
+      color: #fff;
+      background: var(--platform-color);
+      font-size: 10px;
+      line-height: 1;
+      font-weight: 820;
+    }
+
+    .account-head {
+      background: linear-gradient(180deg, #fff 0%, var(--platform-empty) 100%);
+      color: color-mix(in srgb, var(--platform-color) 72%, #344054);
+    }
+
+    .account-input {
+      width: 100%;
+      min-width: 0;
+      height: 28px;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      background: transparent;
+      color: inherit;
+      font: inherit;
+      font-weight: 780;
+      text-align: center;
+      outline: none;
+    }
+
+    .account-input:hover {
+      border-color: color-mix(in srgb, var(--platform-color) 24%, var(--line));
+      background: #fff;
+    }
+
+    .account-input:focus {
+      border-color: var(--platform-color);
+      background: #fff;
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--platform-color) 12%, transparent);
+    }
+
+    .project-head,
+    .project-cell {
+      position: sticky;
+      left: 0;
+      z-index: 18;
+      width: 390px;
+      min-width: 390px;
+      max-width: 390px;
+      background: #fff;
+    }
+
+    .project-head {
+      z-index: 24;
+      text-align: left;
+      background: #f8fafc;
+    }
+
+    .project-head-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 0 14px;
+    }
+
+    .month-row td {
+      height: 38px;
+      background: #f0f3f8;
+    }
+
+    .month-toggle {
+      width: 100%;
+      height: 38px;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 14px;
+      color: #344054;
+      text-align: left;
+    }
+
+    .month-count {
+      margin-left: auto;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 720;
+    }
+
+    .project-line {
+      display: grid;
+      grid-template-columns: 52px minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: start;
+      padding: 12px;
+    }
+
+    .day-button {
+      width: 52px;
+      height: 46px;
+      border-radius: 8px;
+      background: #f8fafc;
+      font-size: 22px;
+      color: #42526e;
+    }
+
+    .project-title {
+      width: 100%;
+      min-height: 42px;
+      resize: none;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      padding: 8px 9px;
+      color: var(--ink);
+      background: transparent;
+      font-size: 15px;
+      font-weight: 760;
+      line-height: 1.35;
+      outline: none;
+    }
+
+    .project-title:hover,
+    .project-title:focus {
+      border-color: #c9d3e1;
+      background: #fff;
+    }
+
+    .data-row {
+      grid-column: 2 / 3;
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      gap: 8px;
+      align-items: center;
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 760;
+    }
+
+    .data-input {
+      min-width: 0;
+      height: 32px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0 10px;
+      color: #344054;
+      background: #f8fafc;
+      outline: none;
+      font-weight: 720;
+    }
+
+    .data-input.red { color: #b42318; background: #fff1f1; border-color: #fca5a5; }
+    .data-input.yellow { color: #92400e; background: #fff7d6; border-color: #facc15; }
+    .data-input.green { color: #15803d; background: #eafaf0; border-color: #86efac; }
+
+    .color-pick {
+      display: inline-flex;
+      gap: 6px;
+    }
+
+    .color-pick button {
+      width: 30px;
+      height: 28px;
+      padding: 0;
+      border-radius: 7px;
+      font-size: 12px;
+    }
+
+    .color-pick .red { color: #ef4444; border-color: #fecaca; }
+    .color-pick .yellow { color: #d97706; border-color: #fde68a; }
+    .color-pick .green { color: #16a34a; border-color: #bbf7d0; }
+    .color-pick .active.red { color: #fff; background: #ef4444; border-color: #ef4444; }
+    .color-pick .active.yellow { color: #78350f; background: #facc15; border-color: #facc15; }
+    .color-pick .active.green { color: #fff; background: #22c55e; border-color: #22c55e; }
+
+    .delete-row {
+      width: 30px;
+      padding: 0;
+      color: var(--muted);
+      border-color: transparent;
+      background: transparent;
+      font-size: 18px;
+    }
+
+    .check-cell {
+      height: 92px;
+      background: var(--platform-empty);
+    }
+
+    .check-cell.done {
+      background: var(--platform-bg);
+    }
+
+    .check-cell button {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      color: var(--platform-color);
+      font-size: 30px;
+      font-weight: 860;
+    }
+
+    dialog {
+      width: min(430px, calc(100vw - 28px));
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 0;
+      box-shadow: 0 22px 60px rgba(16, 24, 40, 0.22);
+    }
+
+    dialog::backdrop {
+      background: rgba(15, 23, 42, 0.26);
+    }
+
+    .dialog-form {
+      display: grid;
+      gap: 12px;
+      padding: 18px;
+      background: #fff;
+    }
+
+    .dialog-form h2 {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.2;
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+      color: #475467;
+      font-size: 12px;
+      font-weight: 760;
+    }
+
+    .field input {
+      height: 36px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      padding: 0 10px;
+      font-size: 14px;
+      font-weight: 650;
+      outline: none;
+    }
+
+    .field input[type="color"] {
+      width: 74px;
+      padding: 3px;
+    }
+
+    .dialog-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .delete-list {
+      display: grid;
+      gap: 8px;
+      max-height: 320px;
+      overflow: auto;
+    }
+
+    .delete-item {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      padding: 9px 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #f8fafc;
+    }
+
+    .delete-item strong,
+    .delete-item small {
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .delete-item small {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 720;
+    }
+
+    .hidden { display: none; }
+
+    @media (max-width: 760px) {
+      .topbar-inner { grid-template-columns: 1fr; }
+      .actions { justify-content: flex-start; }
+      .search { width: 100%; }
+      .project-head,
+      .project-cell {
+        width: 330px;
+        min-width: 330px;
+        max-width: 330px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="topbar-inner">
+        <div>
+          <h1>Multi-platform Publishing Tracker</h1>
+          <div class="subtitle">Left side is content. Top side is accounts. Click a cell when a post is published.</div>
+        </div>
+        <div class="actions">
+          <input class="search" id="searchInput" type="search" placeholder="Search content">
+          <button class="accent" id="addAccount" type="button">Platform +</button>
+          <button id="exportCsv" type="button">Export CSV</button>
+          <button id="importCsv" type="button">Import CSV</button>
+          <button id="resetDemo" type="button">Reset demo</button>
+        </div>
+      </div>
+    </header>
+
+    <section class="table-shell" aria-label="Publishing tracker">
+      <div class="toolbar">
+        <button class="primary" id="addProject" type="button">Add content</button>
+        <button id="deleteAccount" type="button">Delete account</button>
+        <span class="toolbar-note" id="toolbarNote"></span>
+      </div>
+      <table>
+        <thead id="tableHead"></thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+      <div class="hidden" id="emptyState"></div>
+    </section>
+  </main>
+
+  <input class="hidden" id="fileInput" type="file" accept=".csv,text/csv">
+
+  <dialog id="accountDialog">
+    <form class="dialog-form" id="accountForm">
+      <h2>Add account</h2>
+      <label class="field">
+        Platform group
+        <input id="platformName" type="text" list="platformOptions" placeholder="Newsletter" required>
+        <datalist id="platformOptions"></datalist>
+      </label>
+      <label class="field">
+        Account or channel
+        <input id="accountName" type="text" placeholder="Main account" required>
+      </label>
+      <label class="field">
+        Color
+        <input id="platformColor" type="color" value="#0f766e">
+      </label>
+      <div class="dialog-actions">
+        <button type="button" data-close-account>Cancel</button>
+        <button class="accent" type="submit">Add</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="deleteDialog">
+    <div class="dialog-form">
+      <h2>Delete account column</h2>
+      <div class="delete-list" id="deleteList"></div>
+      <div class="dialog-actions">
+        <button type="button" data-close-delete>Close</button>
+      </div>
+    </div>
+  </dialog>
+
+  <script>
+    const STORAGE_KEY = "mpt-projects-v1";
+    const CHANNELS_KEY = "mpt-channels-v1";
+    const META_KEY = "mpt-platform-meta-v1";
+    const COLLAPSED_KEY = "mpt-collapsed-months-v1";
+
+    const defaultMeta = {
+      "Short-form": colors("#ff2442", "SF"),
+      "Newsletter": colors("#16a34a", "NL"),
+      "Video": colors("#2563eb", "V"),
+      "Podcast": colors("#7c3aed", "P"),
+      "Blog": colors("#00a1d6", "B"),
+      "Course": colors("#f59e0b", "C")
+    };
+
+    const defaultChannels = [
+      channel("short-main", "Short-form", "Main"),
+      channel("short-lab", "Short-form", "Lab"),
+      channel("newsletter-personal", "Newsletter", "Personal"),
+      channel("newsletter-official", "Newsletter", "Official"),
+      channel("video-long", "Video", "Long-form"),
+      channel("video-short", "Video", "Short clip"),
+      channel("podcast-main", "Podcast", "Podcast"),
+      channel("blog-main", "Blog", "Blog"),
+      channel("course-main", "Course", "Course")
+    ];
+
+    const seedProjects = [
+      project("Launch post for a new workflow", "2026-07-01", { "short-main": true, "newsletter-official": true, "video-short": true }, "green", "Published"),
+      project("Short tutorial: how the tracker works", "2026-07-02", { "short-lab": true, "video-short": true, "blog-main": true }, "yellow", "Draft ready"),
+      project("Newsletter issue: weekly content system", "2026-07-03", { "newsletter-personal": true, "newsletter-official": true, "podcast-main": true }, "red", "Needs edit")
+    ];
+
+    let platformMeta = { ...defaultMeta, ...loadJson(META_KEY, {}) };
+    let channels = loadJson(CHANNELS_KEY, defaultChannels);
+    let projects = normalizeProjects(loadJson(STORAGE_KEY, seedProjects));
+    let collapsedMonths = new Set(loadJson(COLLAPSED_KEY, []));
+    let search = "";
+
+    function colors(color, logo) {
+      return {
+        color,
+        bg: `color-mix(in srgb, ${color} 10%, #fff)`,
+        empty: `color-mix(in srgb, ${color} 5%, #fff)`,
+        hover: `color-mix(in srgb, ${color} 16%, #fff)`,
+        logo
+      };
+    }
+
+    function channel(key, platform, account) {
+      return { key, platform, account };
+    }
+
+    function project(name, date, checks = {}, dataColor = "", dataText = "") {
+      return {
+        id: "p-" + Math.random().toString(36).slice(2, 10),
+        name,
+        date,
+        checks,
+        dataColor,
+        dataText
+      };
+    }
+
+    function loadJson(key, fallback) {
+      try {
+        const value = JSON.parse(localStorage.getItem(key));
+        return value ?? fallback;
+      } catch {
+        return fallback;
+      }
+    }
+
+    function save() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(projects));
+      localStorage.setItem(CHANNELS_KEY, JSON.stringify(channels));
+      localStorage.setItem(META_KEY, JSON.stringify(platformMeta));
+      localStorage.setItem(COLLAPSED_KEY, JSON.stringify(Array.from(collapsedMonths)));
+    }
+
+    function normalizeProjects(items) {
+      return items.map(item => ({
+        ...project(item.name || "Untitled", item.date || today()),
+        ...item,
+        checks: { ...(item.checks || {}) }
+      })).sort((a, b) => String(a.date).localeCompare(String(b.date)));
+    }
+
+    function today() {
+      const date = new Date();
+      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+    }
+
+    function dateParts(value) {
+      const match = String(value || today()).match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      if (!match) return dateParts(today());
+      return { year: Number(match[1]), month: Number(match[2]), day: Number(match[3]) };
+    }
+
+    function render() {
+      renderToolbar();
+      renderHead();
+      renderBody();
+    }
+
+    function renderToolbar() {
+      document.getElementById("toolbarNote").textContent = `${projects.length} content items, ${channels.length} account columns`;
+    }
+
+    function renderHead() {
+      const groups = [];
+      channels.forEach(item => {
+        const last = groups[groups.length - 1];
+        if (last && last.platform === item.platform) {
+          last.count += 1;
+        } else {
+          groups.push({ platform: item.platform, count: 1 });
+        }
+      });
+
+      document.getElementById("tableHead").innerHTML = `
+        <tr>
+          <th class="project-head" rowspan="2">
+            <div class="project-head-inner">
+              <span>Content / project</span>
+              <button class="primary" type="button" data-add-project>Add content</button>
+            </div>
+          </th>
+          ${groups.map(group => `
+            <th class="platform-head" colspan="${group.count}" style="${platformStyle(group.platform)}">
+              <span class="platform-label">
+                <span class="logo">${escapeHtml((platformMeta[group.platform] || {}).logo || group.platform.slice(0, 2))}</span>
+                <span>${escapeHtml(group.platform)}</span>
+              </span>
+            </th>
+          `).join("")}
+        </tr>
+        <tr>
+          ${channels.map(item => `
+            <th class="account-head" style="${platformStyle(item.platform)}">
+              <input class="account-input" value="${escapeAttribute(item.account)}" data-account="${escapeAttribute(item.key)}" aria-label="${escapeAttribute(item.platform + " account name")}">
+            </th>
+          `).join("")}
+        </tr>
+      `;
+    }
+
+    function renderBody() {
+      const body = document.getElementById("tableBody");
+      const rows = filteredProjects();
+      body.innerHTML = monthSections(rows).join("");
+      autoResize();
+    }
+
+    function filteredProjects() {
+      const query = search.trim().toLowerCase();
+      return query ? projects.filter(item => item.name.toLowerCase().includes(query)) : projects;
+    }
+
+    function monthSections(rows) {
+      const grouped = new Map();
+      rows.forEach(item => {
+        const month = dateParts(item.date).month;
+        if (!grouped.has(month)) grouped.set(month, []);
+        grouped.get(month).push(item);
+      });
+      return Array.from(grouped.entries()).map(([month, items]) => {
+        const collapsed = collapsedMonths.has(month);
+        return `
+          <tr class="month-row" data-month="${month}">
+            <td class="project-cell">
+              <button class="month-toggle" type="button" data-toggle-month="${month}" aria-expanded="${!collapsed}">
+                <span>${month}月</span>
+                <span class="month-count">${items.length} items ${collapsed ? "Expand" : "Collapse"}</span>
+              </button>
+            </td>
+            <td colspan="${channels.length}"></td>
+          </tr>
+          ${collapsed ? "" : items.map(rowTemplate).join("")}
+        `;
+      });
+    }
+
+    function rowTemplate(item) {
+      const parts = dateParts(item.date);
+      return `
+        <tr data-project="${escapeAttribute(item.id)}">
+          <td class="project-cell">
+            <div class="project-line">
+              <button class="day-button" type="button" data-date-button="${escapeAttribute(item.id)}">${parts.day}</button>
+              <textarea class="project-title" rows="2" data-name="${escapeAttribute(item.id)}">${escapeHtml(item.name)}</textarea>
+              <button class="delete-row" type="button" data-delete-project="${escapeAttribute(item.id)}" title="Delete">x</button>
+              <input class="hidden" type="date" value="${escapeAttribute(item.date)}" data-date="${escapeAttribute(item.id)}">
+              ${dataTemplate(item)}
+            </div>
+          </td>
+          ${channels.map(itemChannel => checkTemplate(item, itemChannel)).join("")}
+        </tr>
+      `;
+    }
+
+    function dataTemplate(item) {
+      const colors = ["red", "yellow", "green"];
+      return `
+        <div class="data-row">
+          <span>Data</span>
+          <input class="data-input ${escapeAttribute(item.dataColor || "")}" value="${escapeAttribute(item.dataText || "")}" data-data-text="${escapeAttribute(item.id)}" placeholder="Add note">
+          <span class="color-pick">
+            ${colors.map(color => `<button class="${color} ${item.dataColor === color ? "active" : ""}" type="button" data-data-color="${escapeAttribute(item.id)}" data-color="${color}">${color[0].toUpperCase()}</button>`).join("")}
+          </span>
+        </div>
+      `;
+    }
+
+    function checkTemplate(item, itemChannel) {
+      const checked = Boolean(item.checks[itemChannel.key]);
+      return `
+        <td class="check-cell ${checked ? "done" : ""}" style="${platformStyle(itemChannel.platform)}">
+          <button type="button" data-toggle="${escapeAttribute(item.id)}" data-channel="${escapeAttribute(itemChannel.key)}" aria-pressed="${checked}">${checked ? "✓" : ""}</button>
+        </td>
+      `;
+    }
+
+    function platformStyle(platform) {
+      const meta = platformMeta[platform] || colors("#64748b", platform.slice(0, 2));
+      return `--platform-color:${meta.color};--platform-bg:${meta.bg};--platform-empty:${meta.empty};--platform-hover:${meta.hover};`;
+    }
+
+    function addProject() {
+      projects.push(project("", today()));
+      save();
+      render();
+      const row = projects[projects.length - 1];
+      const input = document.querySelector(`[data-name="${CSS.escape(row.id)}"]`);
+      if (input) input.focus();
+    }
+
+    function deleteProject(id) {
+      if (!window.confirm("Delete this content row?")) return;
+      projects = projects.filter(item => item.id !== id);
+      save();
+      render();
+    }
+
+    function updateProject(id, patch) {
+      const item = projects.find(row => row.id === id);
+      if (!item) return;
+      Object.assign(item, patch);
+      save();
+      renderToolbar();
+    }
+
+    function toggleCell(projectId, channelKey) {
+      const item = projects.find(row => row.id === projectId);
+      if (!item) return;
+      item.checks[channelKey] = !item.checks[channelKey];
+      save();
+      render();
+    }
+
+    function renameAccount(key, value) {
+      const item = channels.find(row => row.key === key);
+      if (!item) return;
+      item.account = String(value || "").trim() || item.account;
+      save();
+      renderHead();
+      renderBody();
+    }
+
+    function addAccount(platform, account, color) {
+      const cleanPlatform = String(platform || "").trim();
+      const cleanAccount = String(account || "").trim();
+      if (!cleanPlatform || !cleanAccount) return;
+      if (!platformMeta[cleanPlatform]) platformMeta[cleanPlatform] = colors(color || "#0f766e", cleanPlatform.slice(0, 2).toUpperCase());
+      let key = slug(`${cleanPlatform}-${cleanAccount}`);
+      while (channels.some(item => item.key === key)) key = `${key}-${Math.random().toString(36).slice(2, 5)}`;
+      channels.push(channel(key, cleanPlatform, cleanAccount));
+      channels = orderChannels(channels);
+      save();
+      render();
+    }
+
+    function deleteAccount(key) {
+      const item = channels.find(row => row.key === key);
+      if (!item) return;
+      if (!window.confirm(`Delete ${item.platform} - ${item.account}?`)) return;
+      channels = channels.filter(row => row.key !== key);
+      projects.forEach(row => delete row.checks[key]);
+      save();
+      renderDeleteList();
+      render();
+    }
+
+    function orderChannels(items) {
+      const order = [];
+      defaultChannels.forEach(item => {
+        if (!order.includes(item.platform)) order.push(item.platform);
+      });
+      items.forEach(item => {
+        if (!order.includes(item.platform)) order.push(item.platform);
+      });
+      return items.slice().sort((a, b) => order.indexOf(a.platform) - order.indexOf(b.platform));
+    }
+
+    function slug(value) {
+      return String(value).trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || `custom-${Date.now()}`;
+    }
+
+    function renderPlatformOptions() {
+      document.getElementById("platformOptions").innerHTML = Array.from(new Set(channels.map(item => item.platform)))
+        .map(platform => `<option value="${escapeAttribute(platform)}"></option>`)
+        .join("");
+    }
+
+    function renderDeleteList() {
+      const list = document.getElementById("deleteList");
+      if (!channels.length) {
+        list.innerHTML = `<div class="delete-item"><strong>No account columns left.</strong></div>`;
+        return;
+      }
+      list.innerHTML = channels.map(item => `
+        <div class="delete-item">
+          <div>
+            <strong>${escapeHtml(item.account)}</strong>
+            <small>${escapeHtml(item.platform)}</small>
+          </div>
+          <button class="danger" type="button" data-delete-account="${escapeAttribute(item.key)}">Delete</button>
+        </div>
+      `).join("");
+    }
+
+    function exportCsv() {
+      const header = ["Date", "Content", "Data", ...channels.map(item => `${item.platform}-${item.account}`)];
+      const rows = projects.map(item => [
+        item.date,
+        item.name,
+        item.dataText || "",
+        ...channels.map(itemChannel => item.checks[itemChannel.key] ? "1" : "")
+      ]);
+      downloadCsv("publishing-tracker.csv", [header, ...rows]);
+    }
+
+    function downloadCsv(filename, rows) {
+      const csv = rows.map(row => row.map(csvCell).join(",")).join("\n");
+      const blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      link.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function csvCell(value) {
+      const text = String(value ?? "");
+      return /[",\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+    }
+
+    function importCsvText(text) {
+      const rows = parseCsv(text).filter(row => row.some(cell => cell.trim()));
+      if (rows.length < 2) return;
+      const header = rows[0].map(cell => cell.trim());
+      const dateIndex = header.findIndex(cell => ["Date", "date"].includes(cell));
+      const nameIndex = header.findIndex(cell => ["Content", "content", "Project", "project"].includes(cell));
+      const dataIndex = header.findIndex(cell => ["Data", "data"].includes(cell));
+      const channelIndexes = channels.map(item => ({
+        channel: item,
+        index: header.findIndex(cell => cell === `${item.platform}-${item.account}` || cell === item.account || cell === item.key)
+      }));
+      projects = rows.slice(1).map(row => {
+        const item = project(row[nameIndex >= 0 ? nameIndex : 1] || "Imported content", row[dateIndex >= 0 ? dateIndex : 0] || today());
+        item.dataText = dataIndex >= 0 ? row[dataIndex] || "" : "";
+        channelIndexes.forEach(({ channel: itemChannel, index }) => {
+          if (index >= 0 && ["1", "yes", "done", "true"].includes(String(row[index] || "").trim().toLowerCase())) {
+            item.checks[itemChannel.key] = true;
+          }
+        });
+        return item;
+      });
+      save();
+      render();
+    }
+
+    function parseCsv(text) {
+      const rows = [];
+      let row = [];
+      let cell = "";
+      let quoted = false;
+      for (let index = 0; index < text.length; index += 1) {
+        const char = text[index];
+        const next = text[index + 1];
+        if (quoted) {
+          if (char === '"' && next === '"') {
+            cell += '"';
+            index += 1;
+          } else if (char === '"') {
+            quoted = false;
+          } else {
+            cell += char;
+          }
+        } else if (char === '"') {
+          quoted = true;
+        } else if (char === ",") {
+          row.push(cell);
+          cell = "";
+        } else if (char === "\n") {
+          row.push(cell);
+          rows.push(row);
+          row = [];
+          cell = "";
+        } else if (char !== "\r") {
+          cell += char;
+        }
+      }
+      row.push(cell);
+      rows.push(row);
+      return rows;
+    }
+
+    function autoResize() {
+      document.querySelectorAll(".project-title").forEach(input => {
+        input.style.height = "auto";
+        input.style.height = input.scrollHeight + "px";
+      });
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function escapeAttribute(value) {
+      return escapeHtml(value);
+    }
+
+    document.getElementById("addProject").addEventListener("click", addProject);
+    document.getElementById("exportCsv").addEventListener("click", exportCsv);
+    document.getElementById("importCsv").addEventListener("click", () => document.getElementById("fileInput").click());
+    document.getElementById("resetDemo").addEventListener("click", () => {
+      if (!window.confirm("Reset demo data?")) return;
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(CHANNELS_KEY);
+      localStorage.removeItem(META_KEY);
+      localStorage.removeItem(COLLAPSED_KEY);
+      location.reload();
+    });
+    document.getElementById("addAccount").addEventListener("click", () => {
+      renderPlatformOptions();
+      document.getElementById("platformName").value = "";
+      document.getElementById("accountName").value = "";
+      document.getElementById("accountDialog").showModal();
+    });
+    document.getElementById("deleteAccount").addEventListener("click", () => {
+      renderDeleteList();
+      document.getElementById("deleteDialog").showModal();
+    });
+    document.querySelector("[data-close-account]").addEventListener("click", () => document.getElementById("accountDialog").close());
+    document.querySelector("[data-close-delete]").addEventListener("click", () => document.getElementById("deleteDialog").close());
+    document.getElementById("accountForm").addEventListener("submit", event => {
+      event.preventDefault();
+      addAccount(
+        document.getElementById("platformName").value,
+        document.getElementById("accountName").value,
+        document.getElementById("platformColor").value
+      );
+      document.getElementById("accountDialog").close();
+    });
+    document.getElementById("deleteList").addEventListener("click", event => {
+      const button = event.target.closest("[data-delete-account]");
+      if (button) deleteAccount(button.dataset.deleteAccount);
+    });
+    document.getElementById("searchInput").addEventListener("input", event => {
+      search = event.target.value;
+      renderBody();
+    });
+    document.getElementById("fileInput").addEventListener("change", event => {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => importCsvText(String(reader.result || ""));
+      reader.readAsText(file);
+      event.target.value = "";
+    });
+    document.getElementById("tableHead").addEventListener("click", event => {
+      if (event.target.closest("[data-add-project]")) addProject();
+    });
+    document.getElementById("tableHead").addEventListener("change", event => {
+      const input = event.target.closest("[data-account]");
+      if (input) renameAccount(input.dataset.account, input.value);
+    });
+    document.getElementById("tableHead").addEventListener("keydown", event => {
+      const input = event.target.closest("[data-account]");
+      if (input && event.key === "Enter") {
+        event.preventDefault();
+        input.blur();
+      }
+    });
+    document.getElementById("tableBody").addEventListener("click", event => {
+      const toggleMonth = event.target.closest("[data-toggle-month]");
+      if (toggleMonth) {
+        const month = Number(toggleMonth.dataset.toggleMonth);
+        if (collapsedMonths.has(month)) collapsedMonths.delete(month);
+        else collapsedMonths.add(month);
+        save();
+        renderBody();
+        return;
+      }
+      const dateButton = event.target.closest("[data-date-button]");
+      if (dateButton) {
+        const input = document.querySelector(`[data-date="${CSS.escape(dateButton.dataset.dateButton)}"]`);
+        if (input && typeof input.showPicker === "function") input.showPicker();
+        else if (input) input.click();
+        return;
+      }
+      const toggle = event.target.closest("[data-toggle]");
+      if (toggle) {
+        toggleCell(toggle.dataset.toggle, toggle.dataset.channel);
+        return;
+      }
+      const remove = event.target.closest("[data-delete-project]");
+      if (remove) deleteProject(remove.dataset.deleteProject);
+      const color = event.target.closest("[data-data-color]");
+      if (color) {
+        updateProject(color.dataset.dataColor, { dataColor: color.dataset.color });
+        renderBody();
+      }
+    });
+    document.getElementById("tableBody").addEventListener("change", event => {
+      const name = event.target.closest("[data-name]");
+      if (name) updateProject(name.dataset.name, { name: name.value });
+      const date = event.target.closest("[data-date]");
+      if (date) {
+        updateProject(date.dataset.date, { date: date.value });
+        renderBody();
+      }
+      const dataText = event.target.closest("[data-data-text]");
+      if (dataText) updateProject(dataText.dataset.dataText, { dataText: dataText.value });
+    });
+    document.getElementById("tableBody").addEventListener("input", event => {
+      if (event.target.closest(".project-title")) autoResize();
+    });
+
+    render();
+
+    if (location.hash === "#demo-edit-account") {
+      requestAnimationFrame(() => {
+        const firstAccount = document.querySelector("[data-account]");
+        if (firstAccount) firstAccount.focus();
+      });
+    }
+
+    if (location.hash === "#demo-account-management") {
+      requestAnimationFrame(() => {
+        renderDeleteList();
+        document.getElementById("deleteDialog").showModal();
+      });
+    }
+  </script>
+</body>
+</html>

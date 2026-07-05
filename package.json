@@ -1,0 +1,11 @@
+{
+  "name": "multi-platform-publishing-tracker",
+  "version": "1.0.0",
+  "private": false,
+  "description": "A local-first publishing checklist for tracking content across multiple platforms and accounts.",
+  "scripts": {
+    "start": "python3 -m http.server 8765",
+    "check": "node scripts/check-html.js"
+  },
+  "license": "MIT"
+}
