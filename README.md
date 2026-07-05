@@ -6,6 +6,22 @@ It is a single-page web app. No signup, no database, no backend required. Open i
 
 ![Tracker overview](assets/screenshots/overview.png)
 
+## Search Keywords
+
+English keywords:
+
+`multi platform publishing`, `content publishing tracker`,
+`social media publishing checklist`, `creator content calendar`,
+`content distribution workflow`, `publishing status tracker`,
+`repurpose content across platforms`, `newsletter publishing checklist`,
+`podcast content distribution`, `local-first content tracker`.
+
+中文关键词：
+
+`多平台发布`, `内容发布追踪`, `发布状态表`, `创作者发布清单`,
+`自媒体内容分发`, `多账号发布`, `发布日历`, `内容复盘提醒`,
+`内容运营工具`, `创作者工具`.
+
 ## What It Does
 
 - Track one content idea across multiple platforms and accounts.
@@ -25,6 +41,27 @@ Most content teams do not need a complex project management system for distribut
 - checkmarks = already published
 
 This project is intentionally small so people can adapt it to their own workflow.
+
+## Who It Is For
+
+Use this tracker if you:
+
+- publish one idea across multiple platforms
+- run several social accounts at the same time
+- turn podcast episodes into clips, notes, articles, and posts
+- need a visible checklist instead of a heavy project-management tool
+- want a local-first tracker that can be backed up with CSV
+
+## Agent Skill
+
+There is also a companion open Skill:
+
+<https://github.com/atian-create/multi-platform-publishing-tracker-skill>
+
+The web app gives you the local-first grid. The Skill helps an AI Agent turn a
+messy content package into platform rows, account columns, status labels,
+missing-item checks, CSV-friendly tracker rows, and 24h / 48h / 7d review
+reminders.
 
 ## Quick Start
 
