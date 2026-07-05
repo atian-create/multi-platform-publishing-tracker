@@ -30,7 +30,7 @@ Screenshots:
 3. Adding or deleting account columns
 
 GitHub:
-<PASTE_GITHUB_URL_HERE>
+https://github.com/atian-create/multi-platform-publishing-tracker
 
 Notes:
 
